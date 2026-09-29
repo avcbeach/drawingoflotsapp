@@ -342,6 +342,17 @@ main.side.fsside .alt{max-width:none}
 .stage.fs .power span{font-size:26px}
 .stage.fs .power small{font-size:15px}
 .spin,.gorow .go{touch-action:none;-webkit-user-select:none;user-select:none}
+.importrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:12px 0 6px}
+.importrow .lbl{font-family:var(--display);font-weight:700;font-size:16px}
+#importText{width:100%;margin:6px 0;border:1.5px solid var(--rule);border-radius:8px;padding:8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:var(--card)}
+.importprev{border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;background:var(--card)}
+.importprev[hidden]{display:none}
+.imphead{font-size:14px;margin-bottom:8px}
+.imptable{border-collapse:collapse;font-size:13px;width:100%;max-width:560px}
+.imptable td,.imptable th{padding:3px 8px;border-top:1px solid var(--sand-2);text-align:left}
+.imptable td:first-child{font-family:var(--display);font-weight:800;width:48px}
+.imptable tr.miss td{color:var(--danger)}
+.impev{display:flex;gap:6px;align-items:center;font-size:13px;margin-top:8px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -443,6 +454,16 @@ main.side.fsside .alt{max-width:none}
         <button class="btn warn" id="logoClear" type="button">Remove</button>
         <span class="hint" style="margin:0">PNG, JPG, SVG or WebP. Placed at the top right of the exported PDF.</span>
       </div>
+      <div class="importrow">
+        <span class="lbl">Import teams</span>
+        <label class="btn solid" for="importFile">Ranking report (PDF)</label>
+        <input type="file" id="importFile" accept="application/pdf,.pdf,.txt,text/plain" hidden>
+        <button class="btn" id="importPasteBtn" type="button">Paste text</button>
+        <span class="hint" style="margin:0">Takes 1st and 2nd of each pool: Pool A → A1, A2 …</span>
+      </div>
+      <textarea id="importText" hidden rows="6" placeholder="Paste the ranking report text here"></textarea>
+      <button class="btn" id="importParseBtn" type="button" hidden>Read pasted text</button>
+      <div class="importprev" id="importPreview" hidden></div>
       <div class="grid" id="teamEdit"></div>
       <h3 class="subhead">Match numbers</h3>
       <p class="hint" id="autoHint"></p>
@@ -1759,6 +1780,92 @@ document.getElementById("logoFile").addEventListener("change",e=>{
 });
 document.getElementById("logoClear").onclick=()=>{ try{ localStorage.removeItem(LOGOKEY); }catch(e){} renderLogo(); };
 renderLogo();
+/* ---------- import from a round-robin ranking report (e.g. FIVB VIS "Round Robin Ranking" PDF) ---------- */
+const PDFJS_V="3.11.174", PDFJS_BASE=`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/`;
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=()=>rej(new Error("load "+src)); document.head.appendChild(s); }); }
+async function ensurePdfJs(){
+  if(!window.pdfjsLib){ await loadScript(PDFJS_BASE+"pdf.min.js"); }
+  if(!window.pdfjsWorker){ try{ await loadScript(PDFJS_BASE+"pdf.worker.min.js"); }catch(e){} }
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_BASE+"pdf.worker.min.js";
+  return window.pdfjsLib;
+}
+async function pdfToText(file){
+  const lib=await ensurePdfJs();
+  const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  const out=[];
+  for(let p=1;p<=pdf.numPages;p++){
+    const page=await pdf.getPage(p), tc=await page.getTextContent();
+    const rows=[];
+    tc.items.forEach(it=>{ if(!it.str) return; const y=it.transform[5], x=it.transform[4];
+      let r=rows.find(r=>Math.abs(r.y-y)<2.5); if(!r){ r={y,items:[]}; rows.push(r); } r.items.push({x,w:it.width,s:it.str}); });
+    rows.sort((a,b)=>b.y-a.y).forEach(r=>{ r.items.sort((a,b)=>a.x-b.x); let line="", end=null;
+      r.items.forEach(it=>{ if(end!==null&&it.x-end>1.2) line+=" "; line+=it.s; end=it.x+it.w; }); out.push(line.trim()); });
+  }
+  return out.join("\n");
+}
+function parseRanking(text){
+  const t=String(text).replace(/\u00A0/g," ");
+  const res={pools:{},division:null,event:null};
+  const dm=t.match(/([^\n]*?)\s*\/\s*(Women|Men)\b/i);
+  if(dm){ res.division=/^w/i.test(dm[2])?"women":"men"; res.event=dm[1].trim()||null; }
+  const parts=t.split(/Pool\s+([A-Z])\b/);
+  for(let i=1;i<parts.length;i+=2){
+    const pool=parts[i], chunk=parts[i+1]||"";
+    const re=/(?:^|[\s\n])([1-9])\s+([A-Za-z][^\[\n]*?)\s*\[(\d+)\]\s*([A-Z]{3})\b/g; let m;
+    while((m=re.exec(chunk))){ const rank=+m[1]; if(rank>2) continue; const name=`${m[2].replace(/\s+/g," ").trim()} ${m[4]}`;
+      res.pools[pool]=res.pools[pool]||{}; if(!res.pools[pool][rank]) res.pools[pool][rank]=name; }
+  }
+  return res;
+}
+let PENDING_IMPORT=null;
+function showImportPreview(r){
+  const box=document.getElementById("importPreview");
+  const letters=Object.keys(r.pools).sort();
+  if(!letters.length){ box.innerHTML=`<p class="warnline">Couldn't find any pools in that file. Try pasting the text instead.</p>`; box.hidden=false; return; }
+  const suggestFmt=letters.some(L=>L>"D")?"r16":"qf";
+  const codes=FORMATS[suggestFmt].codes;
+  const map={}; letters.forEach(L=>{ [1,2].forEach(k=>{ const code=L+k; if(r.pools[L][k]&&codes.includes(code)) map[code]=r.pools[L][k]; }); });
+  const target=r.division||div;
+  PENDING_IMPORT={map,target,fmt:suggestFmt,event:r.event};
+  const missing=codes.filter(c=>!map[c]);
+  box.innerHTML=`<div class="imphead"><b>Found ${letters.length} pools (${letters.join(", ")})</b> — importing into the <b>${target==="men"?"Men":"Women"}</b> tab${r.division&&r.division!==div?" (detected from the report)":""}.
+    ${(state.format==="qf"?"qf":"r16")!==suggestFmt&&target===div?`<br>Format will switch to <b>${FORMATS[suggestFmt].name}</b>.`:""}</div>
+    <table class="imptable"><thead><tr><th>Code</th><th>Team</th></tr></thead><tbody>${codes.map(c=>`<tr class="${map[c]?"":"miss"}"><td>${c}</td><td>${map[c]?esc(map[c]):"— not found —"}</td></tr>`).join("")}</tbody></table>
+    ${missing.length?`<p class="warnline">Missing: ${missing.join(", ")} — you can type these in by hand after importing.</p>`:""}
+    ${r.event?`<label class="impev"><input type="checkbox" id="impEvent" ${document.getElementById("eventInput").value?"":"checked"}> Also set event name to “${esc(r.event)}”</label>`:""}
+    <div class="row-btns"><button class="btn solid" id="impApply">Import names</button><button class="btn" id="impCancel">Cancel</button></div>`;
+  box.hidden=false;
+  document.getElementById("impCancel").onclick=()=>{ PENDING_IMPORT=null; box.hidden=true; };
+  document.getElementById("impApply").onclick=applyImport;
+}
+function applyImport(){
+  const P=PENDING_IMPORT; if(!P) return;
+  const ev=document.getElementById("impEvent");
+  if(ev&&ev.checked&&P.event){ try{ localStorage.setItem(EVKEY,P.event); }catch(e){} renderEvent(); }
+  if(P.target!==div) setDiv(P.target);
+  const curFmt=state.format==="qf"?"qf":"r16";
+  if(curFmt!==P.fmt){
+    const hasData=Object.values(state.seeds).some(Boolean)||Object.keys(state.winners).length;
+    if(!hasData||confirm("Switching format clears the draw and match results for this tab. Continue?")){
+      state.format=P.fmt; state.seeds={}; state.winners={}; state.log=[]; state.scores={}; applyFormat(P.fmt);
+    }
+  }
+  Object.entries(P.map).forEach(([c,n])=>{ state.names[c]=n; });
+  audit({for:"Team names",result:`${Object.keys(P.map).length} names imported`,status:"manual",statusText:"Imported from ranking report"});
+  save(); PENDING_IMPORT=null; document.getElementById("importPreview").hidden=true;
+  setDiv(div); toast(`Imported ${Object.keys(P.map).length} teams`);
+}
+document.getElementById("importFile").addEventListener("change",async e=>{
+  const f=e.target.files&&e.target.files[0]; e.target.value=""; if(!f) return;
+  const box=document.getElementById("importPreview"); box.hidden=false; box.innerHTML=`<p class="muted">Reading ${esc(f.name)}…</p>`;
+  try{
+    const text=/\.pdf$/i.test(f.name)||f.type==="application/pdf"?await pdfToText(f):await f.text();
+    showImportPreview(parseRanking(text));
+  }catch(err){ box.innerHTML=`<p class="warnline">Couldn't read that file${/load/.test(err.message)?" (the PDF reader needs an internet connection)":""}. You can paste the text from the report instead.</p>`; }
+});
+document.getElementById("importPasteBtn").onclick=()=>{ const ta=document.getElementById("importText"); ta.hidden=!ta.hidden; document.getElementById("importParseBtn").hidden=ta.hidden; if(!ta.hidden) ta.focus(); };
+document.getElementById("importParseBtn").onclick=()=>{ const v=document.getElementById("importText").value; if(v.trim()) showImportPreview(parseRanking(v)); };
+
 /* ---------- copy summary ---------- */
 document.getElementById("copyBtn").onclick=async()=>{
   const M=resolve(), L=[];
