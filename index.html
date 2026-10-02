@@ -6,7 +6,7 @@
 <title>Bracket Template</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --sand:#EDE3CF; --sand-2:#E2D4B8; --card:#FFFCF5; --ink:#12324A; --ink-2:#4A6275;
@@ -353,12 +353,152 @@ main.side.fsside .alt{max-width:none}
 .imptable td:first-child{font-family:var(--display);font-weight:800;width:48px}
 .imptable tr.miss td{color:var(--danger)}
 .impev{display:flex;gap:6px;align-items:center;font-size:13px;margin-top:8px}
+/* ================= Official theme ================= */
+:root{
+  --sand:#F2F4F7; --sand-2:#E3E7EC; --card:#FFFFFF; --ink:#0F1F33; --ink-2:#4B5A6B; --line:#1F4E8C;
+  --ball:#13315C; --ball-ink:#FFFFFF; --muted:#8A96A3; --rule:#D5DAE1; --danger:#A3261C; --navy:#13315C; --gold:#A8812F;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --sand:#0B1420; --sand-2:#17263A; --card:#111D2C; --ink:#E7EDF5; --ink-2:#A7B5C6; --line:#7FA6DA;
+  --ball:#2D5C9A; --ball-ink:#FFFFFF; --muted:#6F7F92; --rule:#24364D; --danger:#E06A5E; --navy:#0E2440; --gold:#CFA75A; } }
+:root[data-theme="dark"]{ --sand:#0B1420; --sand-2:#17263A; --card:#111D2C; --ink:#E7EDF5; --ink-2:#A7B5C6; --line:#7FA6DA;
+  --ball:#2D5C9A; --ball-ink:#FFFFFF; --muted:#6F7F92; --rule:#24364D; --danger:#E06A5E; --navy:#0E2440; --gold:#CFA75A; }
+body{font-size:14.5px;letter-spacing:.1px}
+/* header band */
+header{background:var(--navy);color:#fff;padding:18px clamp(14px,4vw,40px) 18px;align-items:center;border-bottom:4px solid var(--gold)}
+.brand{display:flex;align-items:center;gap:16px;min-width:0}
+#hdrLogo{height:64px;width:auto;max-width:180px;object-fit:contain;background:#fff;border-radius:4px;padding:6px}
+.eyebrow{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.4vw,44px);line-height:1.05;letter-spacing:.5px;text-transform:uppercase;color:#fff}
+h1 small{font-family:var(--body);font-weight:500;font-size:clamp(13px,1.4vw,16px);letter-spacing:.3px;text-transform:none;color:#C9D3E0;margin:2px 0 4px}
+header .seg,header .tab,header .helpbtn{border-color:rgba(255,255,255,.55);color:#fff;background:transparent}
+header .seg button{color:#fff}
+header .seg button[aria-pressed="true"],header .tab[aria-selected="true"],header .helpbtn[aria-pressed="true"]{background:#fff;color:var(--navy)}
+/* controls */
+.seg,.tab,.helpbtn,.btn,.stylepick select,.seedrow select,.fixed,.poolh select{border-radius:4px}
+.seg{border-width:1.5px}
+.seg button,.tab,.helpbtn{font-family:var(--body);font-weight:600;font-size:13.5px;letter-spacing:.2px}
+.tab{padding:7px 18px;border-width:1.5px}
+.helpbtn{padding:6px 12px;border-width:1.5px}
+.btn{border-width:1.5px;font-size:13.5px;font-weight:500;padding:6px 14px}
+.btn.solid{background:var(--navy);border-color:var(--navy);color:#fff}
+.stylepick{font-family:var(--body);font-weight:600;font-size:13.5px}
+.stylepick select{border-width:1.5px}
+/* panels */
+.panel{border:1px solid var(--rule);border-radius:6px;padding:20px 22px}
+.panel h2{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:2px;text-transform:uppercase;color:var(--navy);border-bottom:2px solid var(--navy);padding-bottom:8px;margin-bottom:12px}
+:root[data-theme="dark"] .panel h2{color:var(--ink)}
+.drawhead h2{border-bottom:0;padding-bottom:0;margin:0}
+.drawhead{border-bottom:2px solid var(--navy);padding-bottom:10px;margin-bottom:12px}
+.seedgroup{font-family:var(--display);font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-2)}
+.seedno{font-family:var(--display);color:var(--navy);font-weight:700}
+:root[data-theme="dark"] .seedno{color:var(--line)}
+.target b,.result b{font-family:var(--display);font-weight:700}
+.result{border-left:4px solid var(--navy);border-radius:0;background:var(--sand)}
+/* draw controls */
+.pointer{border-top-color:var(--navy)}
+.spin{background:var(--navy);color:#fff;border:4px solid #fff;box-shadow:0 0 0 2px var(--navy);font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:clamp(14px,2.6vw,20px)}
+.spin:disabled{background:#AEB8C4;color:#fff}
+.gorow .go{background:var(--navy);color:#fff;border-color:var(--navy);border-radius:4px;font-family:var(--display);font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:17px;padding:10px 36px}
+.gorow .go:disabled{background:#AEB8C4;border-color:#AEB8C4;color:#fff}
+.stage.fs .gorow .go{font-size:24px;padding:12px 52px}
+.power .pbar{border-radius:2px;border-width:1.5px;border-color:var(--navy)}
+.power .pbar i{background:var(--navy)}
+.power span{font-family:var(--display)}
+.deck-out{color:var(--danger);font-size:12.5px}
+/* bracket */
+.colhead{font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--navy);border-bottom:2px solid var(--navy)}
+:root[data-theme="dark"] .colhead{color:var(--ink)}
+.match{border-radius:3px;border:1px solid var(--rule)}
+.mlabel{background:var(--sand);font-family:var(--display);font-weight:600;letter-spacing:.5px;font-size:13px}
+.team .sn{font-family:var(--display);color:var(--navy)}
+:root[data-theme="dark"] .team .sn{color:var(--line)}
+.team .pc{font-family:var(--display);background:var(--sand-2);border-radius:2px}
+.team.win{background:var(--navy);color:#fff;font-weight:600}
+.team.win .sn{color:#fff}
+.team.win .pc{background:rgba(255,255,255,.2);color:#fff}
+.team.latest{box-shadow:inset 3px 0 0 var(--gold)}
+.newtag{background:var(--gold);border-radius:2px}
+.clashnote{border-radius:2px 2px 0 0}
+.podium{border-top:2px solid var(--navy);padding-top:8px}
+.podium span:first-child{font-family:var(--display);font-weight:600}
+.medal-head{font-family:var(--display);text-transform:uppercase;letter-spacing:1.5px;font-size:13px}
+/* draw log */
+.audit summary,.teamsedit summary{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink)}
+.auditwrap{border-radius:3px}
+.audit th{font-family:var(--display);font-size:12.5px;letter-spacing:1px;text-transform:uppercase}
+.audit tr.st-accepted td:last-child,.audit tr.st-auto td:last-child{color:#1F6B45}
+/* cards & spotlight in formal palette */
+.pcard .back{background:repeating-linear-gradient(45deg,var(--navy) 0 8px,#1B3F72 8px 16px);border-radius:6px}
+.pcard .back .num{color:#fff;background:var(--navy);border:2px solid var(--gold)}
+.pcard .face{border-radius:6px}
+.scard{border-radius:4px}
+.scard.lit{box-shadow:0 0 0 4px var(--gold),0 0 18px rgba(168,129,47,.6)}
+.reelwin{border-radius:4px;border-width:3px}
+.reelmark{border-color:var(--gold)}
+.rrow .chip{border-radius:3px;font-family:var(--display)}
+.flapboard.lock{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.flappool span{border-radius:2px}
+#bracketPanel.pulse{animation:pulseoff 1.8s ease-out}
+@keyframes pulseoff{0%{box-shadow:0 0 0 4px var(--gold)}100%{box-shadow:0 0 0 0 transparent}}
+.logoprev{border-radius:4px}
+@media (min-width:1100px){
+  main.side .stage-top .seg button{font-size:12.5px;padding:6px 6px;white-space:normal;line-height:1.2;flex:1 1 0;min-width:0}
+  main.side .stage-top{flex-direction:column;align-items:stretch}
+  main.side .stage-top .stylepick{justify-content:flex-start}
+  main.side .drawhead .seg{display:flex;width:100%}
+  main.side .drawhead .seg button{flex:1;font-size:12.5px;padding:6px;line-height:1.2}
+}
+.seg button{line-height:1.25}
+.draw>*{min-width:0}
+@media (min-width:1100px){ main.side #drawPanel .draw{grid-template-columns:minmax(0,1fr)} }
+/* trust bar */
+.trustbar{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center;padding:8px clamp(14px,4vw,40px);background:var(--card);border-bottom:1px solid var(--rule);font-size:12.5px}
+.tb-item{display:inline-flex;gap:6px;align-items:baseline;white-space:nowrap}
+.tb-item em{font-style:normal;color:var(--ink-2);font-family:var(--display);text-transform:uppercase;letter-spacing:1px;font-size:11px}
+.tb-item b{font-weight:600;font-variant-numeric:tabular-nums}
+.tb-fp b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.5px}
+.tb-status{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);letter-spacing:1.5px;font-size:12px;padding:2px 10px;border:1.5px solid currentColor;border-radius:3px}
+.tb-status i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.tb-status.st-ready{color:var(--ink-2)}
+.tb-status.st-inprogress{color:#B5651D}
+.tb-status.st-complete{color:#1F6B45}
+/* stage frame */
+.stage{border:1px solid var(--rule);border-radius:4px;padding:0 14px 14px;background:var(--card)}
+.stagebar{display:flex;align-items:center;gap:10px;margin:0 -14px 12px;padding:7px 14px;background:var(--navy);color:#fff;font-family:var(--display);font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;border-radius:3px 3px 0 0}
+.stagebar #sbInfo{flex:1;color:#C9D3E0;letter-spacing:1px}
+.sb-id{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.5px;color:#C9D3E0}
+.sb-live{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.sb-live i{width:9px;height:9px;border-radius:50%;background:#7C8796}
+.sb-live.on i{background:#E5484D;box-shadow:0 0 0 0 rgba(229,72,77,.7);animation:livepulse 1.2s infinite}
+@keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(229,72,77,.7)}100%{box-shadow:0 0 0 8px rgba(229,72,77,0)}}
+.stage.fs{border:0;border-radius:0;padding-top:0}
+.stage.fs .stagebar{margin:0 0 10px;width:100%;font-size:16px;padding:10px 18px}
+.resmeta{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;color:var(--ink-2);letter-spacing:.5px;margin-bottom:2px}
+.stage.fs .resmeta{font-size:14px}
+.trustline{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:11.5px;color:var(--ink-2);text-align:center}
+.trustline svg{color:#1F6B45;flex:none}
+.stage.fs .trustline{font-size:14px}
+@media (prefers-reduced-motion:reduce){.sb-live.on i{animation:none}}
+main.side.fsside .stage{border:0}
+.stage.fs .wheel-wrap{width:min(56vh,92vw)}
+.stage.fs .alt.canvasbox{width:min(54vh,92vw)}
+.stage.fs{justify-content:flex-start;gap:2px}
+.stage.fs .result{margin-top:6px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
 <header>
-  <h1><small id="eventName">Final Phase</small><span id="divTitle">Women</span></h1>
+  <div class="brand">
+    <img id="hdrLogo" alt="" hidden>
+    <div>
+      <div class="eyebrow">Official Draw</div>
+      <h1><small id="eventName">Final Phase</small><span id="divTitle">Women</span></h1>
+    </div>
+  </div>
   <div class="seg layout" role="group" aria-label="Layout" id="layoutSeg">
     <button data-layout="stack" aria-pressed="true">Stacked</button>
     <button data-layout="side" aria-pressed="false">Side by side</button>
@@ -370,6 +510,15 @@ main.side.fsside .alt{max-width:none}
   </div>
 </header>
 
+<div class="trustbar" id="trustBar" aria-label="Draw status">
+  <span class="tb-status" id="tbStatus"><i></i><b>READY</b></span>
+  <span class="tb-item"><em>Draw ID</em><b id="tbId">—</b></span>
+  <span class="tb-item"><em>Local time</em><b id="tbClock">—</b></span>
+  <span class="tb-item"><em>Randomness</em><b>Web Crypto RNG</b></span>
+  <span class="tb-item"><em>Same-pool rule</em><b>Applied</b></span>
+  <span class="tb-item"><em>Log</em><b id="tbLog">0 entries</b></span>
+  <span class="tb-item tb-fp" title="Fingerprint of the whole draw log. It changes if any entry changes."><em>Log fingerprint</em><b id="tbFp">—</b></span>
+</div>
 <main id="main">
   <section class="panel" id="drawPanel">
     <div class="drawhead"><h2>Seeding draw</h2>
@@ -381,6 +530,7 @@ main.side.fsside .alt{max-width:none}
     <p class="hint" id="drawHint"></p>
     <div class="draw">
       <div class="stage" id="stage">
+        <div class="stagebar"><span class="sb-live" id="sbLive"><i></i>LIVE DRAW</span><span id="sbInfo"></span><span class="sb-id" id="sbId"></span></div>
         <div class="stage-top">
           <div class="seg" role="group" aria-label="Choose draw" id="drawSeg"></div>
           <div class="seg" role="group" aria-label="Draw mode" id="modeSeg">
@@ -410,6 +560,8 @@ main.side.fsside .alt{max-width:none}
         <div class="gorow"><button class="btn solid go" id="goBtn" hidden>Draw</button></div>
         <div class="power off" id="powerMeter"><div class="pbar"><i id="powerFill"></i></div><span id="powerTxt">0.0s</span></div>
         <p class="fairline" id="fairText"></p>
+        <div class="trustline"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.6-4.6 1.4 1.4-6 6Z"/></svg>
+        Cryptographic random draw · same-pool rule enforced · every draw time-stamped and logged</div>
         <div class="result" id="result" aria-live="polite"><span class="muted">Ready to draw</span></div>
         <div class="row-btns">
           <button class="btn solid" id="fsBtn">Full screen</button>
@@ -647,7 +799,7 @@ document.getElementById("seeds").addEventListener("change",e=>{
 /* ---------- wheel ---------- */
 const canvas=document.getElementById("wheel"), ctx=canvas.getContext("2d");
 let angle=0, spinning=false, drawer=null;
-const SEGC=["#2F6FDB","#F5B700","#12324A","#E88B2E","#1E9E8F","#C8475B","#6A5ACD","#8FB339"];
+const SEGC=["#13315C","#8FA9C9","#1F4E8C","#C9D6E6","#0F1F33","#5F7FA8","#2E6AA8","#E2E8F0"];
 const mode=()=>state.mode==="seed"?"seed":"team";
 function usedTeams(){ return new Set(Object.values(state.seeds).filter(Boolean)); }
 function teamsLeft(){ const u=usedTeams(); return DRAWS[currentDraw].pool.filter(c=>!u.has(c)); }
@@ -688,7 +840,7 @@ function drawWheelCanvas(){
     if(bad){ ctx.fillStyle="rgba(90,90,90,.78)"; ctx.fill(); }
     ctx.lineWidth=6;ctx.strokeStyle="#FFFCF5";ctx.stroke();
     ctx.save();ctx.translate(cx,cy);ctx.rotate(a0+seg/2);ctx.textAlign="right";
-    ctx.fillStyle=bad?"#E6E6E6":["#F5B700","#8FB339","#E88B2E"].includes(col)?"#2A1E00":"#fff";
+    ctx.fillStyle=bad?"#E6E6E6":inkFor(col);
 
     if(mode()==="team"){
       ctx.font="800 74px 'Barlow Condensed', 'Arial Narrow', sans-serif";
@@ -708,6 +860,7 @@ function drawWheelCanvas(){
     ctx.restore();
   });
   ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.lineWidth=14;ctx.strokeStyle=cs.getPropertyValue("--ink");ctx.stroke();
+  for(let k=0;k<32;k++){ const a=angle+k*Math.PI*2/32; ctx.beginPath(); ctx.arc(cx+Math.cos(a)*(r-1),cy+Math.sin(a)*(r-1),4.5,0,Math.PI*2); ctx.fillStyle=k%4===0?"#C9A55A":"#E2E8F0"; ctx.fill(); }
 }
 /* ---------- same-pool rule ---------- */
 const poolOf=c=>c?String(c)[0]:null;
@@ -742,6 +895,36 @@ function audit(entry){
   state.audit.push(Object.assign({n:state.audit.length+1,time:new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"}),draw:currentDraw},entry));
   save(); renderAudit();
 }
+/* ---------- trust bar ---------- */
+function ensureDrawId(){
+  if(!state.drawId){ const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let x=""; for(let i=0;i<6;i++) x+=A[randInt(A.length)];
+    state.drawId=(div==="men"?"M":"W")+"-"+x; save(); }
+  return state.drawId;
+}
+function resMeta(){
+  const n=state.log.length, t=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  return `<div class="resmeta">DRAW ${String(n).padStart(2,"0")} · ${t} · ${ensureDrawId()}</div>`;
+}
+function fnvHex(str){ let h1=0x811c9dc5, h2=0x01000193^0x5bd1e995; for(let i=0;i<str.length;i++){ const c=str.charCodeAt(i); h1=Math.imul(h1^c,16777619); h2=Math.imul(h2^c,2246822519); } return ((h1>>>0).toString(16).padStart(8,"0")+(h2>>>0).toString(16).padStart(8,"0")); }
+async function logFingerprint(){
+  const txt=JSON.stringify({id:state.drawId,audit:state.audit||[]});
+  try{ const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(txt)); return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join(""); }
+  catch(e){ return fnvHex(txt); }
+}
+function renderTrust(){
+  const id=ensureDrawId();
+  document.getElementById("tbId").textContent=id;
+  const sbId=document.getElementById("sbId"); if(sbId) sbId.textContent=id;
+  const n=(state.audit||[]).length; document.getElementById("tbLog").textContent=`${n} entr${n===1?"y":"ies"}`;
+  const all=drawNums().every(d=>drawDone(d)), any=Object.values(state.seeds).some(Boolean)||n>0;
+  const st=all?"COMPLETE":any?"IN PROGRESS":"READY";
+  const el=document.getElementById("tbStatus"); el.className="tb-status st-"+st.replace(" ","").toLowerCase(); el.querySelector("b").textContent=st;
+  const D=DRAWS[currentDraw]; const info=document.getElementById("sbInfo");
+  if(info&&D) info.textContent=`${div==="men"?"Men":"Women"} · ${drawNums().length>1?"Draw "+currentDraw:"Draw"} · Seeds ${Math.min(...D.seeds)}–${Math.max(...D.seeds)}`;
+  document.getElementById("sbLive").classList.toggle("on",!!spinning);
+  logFingerprint().then(h=>{ document.getElementById("tbFp").textContent=h.slice(0,4).toUpperCase()+"-"+h.slice(4,8).toUpperCase()+"-"+h.slice(8,12).toUpperCase(); });
+}
+setInterval(()=>{ const c=document.getElementById("tbClock"); if(c) c.textContent=new Date().toLocaleString([], {day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",second:"2-digit"}); },1000);
 function renderAudit(){
   const box=document.getElementById("auditBody"); if(!box) return;
   const a=state.audit||[];
@@ -813,7 +996,7 @@ function commitDraw(c,idx,note){
   document.getElementById("result").classList.remove("bad");
   state.seeds[seed]=code; state.log.push({seed,team:code});
   audit({for:forTxt,options:optsText,result:resTxt,status:"accepted",statusText:`Accepted (${how})`});
-  document.getElementById("result").innerHTML=`<b>Seed ${seed}</b> ← ${code} · ${esc(teamName(code))}`;
+  document.getElementById("result").innerHTML=`${resMeta()}<b>Seed ${seed}</b> ← ${code} · ${esc(teamName(code))}`;
   const leftN=DRAWS[currentDraw].seeds.filter(n=>!state.seeds[n]).length;
   if(leftN && !feasible(state.seeds)){
     const res=document.getElementById("result");
@@ -844,7 +1027,7 @@ function runWheel(c,idx){
 /* ---- helpers for DOM styles ---- */
 const ALT=()=>document.getElementById("altStage");
 function colorFor(i){ return SEGC[i%SEGC.length]; }
-function inkFor(col){ return ["#F5B700","#8FB339","#E88B2E"].includes(col)?"#2A1E00":"#fff"; }
+function inkFor(col){ const m=/^#([0-9a-f]{6})$/i.exec(col||""); if(!m) return "#fff"; const n=parseInt(m[1],16), L=(0.299*(n>>16)+0.587*(n>>8&255)+0.114*(n&255))/255; return L>0.6?"#0F1F33":"#fff"; }
 function labelHTML(it){
   return mode()==="team"
     ?`<span class="big">${esc(it)}</span><span class="small">${esc(teamName(it))}</span>`
@@ -1423,7 +1606,7 @@ function autoLast(d){
     state.seeds[ls[0]]=lt[0]; state.log.push({seed:ls[0],team:lt[0]});
     audit({for:`Seed ${ls[0]}`,options:lt[0],result:`${lt[0]} → Seed ${ls[0]}`,status:"auto",statusText:"Last spot, automatic (only option left)"});
     const res=document.getElementById("result"); res.classList.remove("bad");
-    res.innerHTML=`<b>Seed ${ls[0]}</b> ← ${lt[0]} · ${esc(teamName(lt[0]))} <span class="muted">(last spot, placed automatically)</span>`;
+    res.innerHTML=`${resMeta()}<b>Seed ${ls[0]}</b> ← ${lt[0]} · ${esc(teamName(lt[0]))} <span class="muted">(last spot, placed automatically)</span>`;
     refresh(ls[0]);
     if(drawDone(d)) onDrawComplete(d);
   },1500);
@@ -1445,6 +1628,7 @@ function updateSpin(){
   document.getElementById("spinBtn").disabled=off;
   const go=document.getElementById("goBtn"); if(go) go.disabled=off;
   const ds=document.getElementById("drawerSel"); if(ds) ds.disabled=spinning;
+  const lv=document.getElementById("sbLive"); if(lv) lv.classList.toggle("on",!!spinning);
   document.querySelectorAll("#altStage .pcard").forEach(b=>b.disabled=off);
 }
 function setDraw(d){
@@ -1757,6 +1941,7 @@ function renderLogo(){
   const l=getLogo(), el=document.getElementById("logoPrev");
   el.innerHTML=l?`<img src="${l.src}" alt="Logo preview">`:`<span class="muted">No logo</span>`;
   document.getElementById("logoClear").disabled=!l;
+  const h=document.getElementById("hdrLogo"); if(h){ if(l){ h.src=l.src; h.hidden=false; } else { h.removeAttribute("src"); h.hidden=true; } }
 }
 document.getElementById("logoFile").addEventListener("change",e=>{
   const file=e.target.files&&e.target.files[0]; e.target.value="";
@@ -1886,7 +2071,7 @@ document.getElementById("copyBtn").onclick=async()=>{
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),1600);}
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 
-function refresh(flashSeed){ renderAudit(); renderSeeds(flashSeed); renderBracket(); drawWheel(); updateSpin(); renderTarget(); }
+function refresh(flashSeed){ renderAudit(); renderTrust(); renderSeeds(flashSeed); renderBracket(); drawWheel(); updateSpin(); renderTarget(); }
 
 function sideActive(){ return document.getElementById("main").classList.contains("side") && matchMedia("(min-width: 1100px)").matches; }
 function setLayout(l){
