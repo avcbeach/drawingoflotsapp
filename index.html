@@ -487,6 +487,38 @@ main.side.fsside .stage{border:0}
 .stage.fs .alt.canvasbox{width:min(54vh,92vw)}
 .stage.fs{justify-content:flex-start;gap:2px}
 .stage.fs .result{margin-top:6px}
+.seg.appmode{margin-left:auto}
+.seg.appmode + .seg.layout{margin-left:0}
+main[hidden],.trustbar[hidden]{display:none!important}
+#freeMain{padding:18px clamp(14px,4vw,40px) 40px;display:grid;gap:22px}
+.fd-presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.fd-presets .lbl,.fd-field{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-2)}
+.fd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fd-grid .fd-title{grid-column:1/-1}
+@media (max-width:760px){.fd-grid{grid-template-columns:1fr}}
+.fd-field{display:flex;flex-direction:column;gap:4px}
+.fd-field small{text-transform:none;letter-spacing:0;font-family:var(--body);font-weight:400;font-size:12px;color:var(--muted)}
+.fd-field input,.fd-field textarea{font-family:var(--body);font-size:14px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);border:1.5px solid var(--rule);border-radius:4px;padding:8px 10px;background:var(--card)}
+.fd-field textarea{resize:vertical;line-height:1.45}
+.fd-opts{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-top:14px}
+.fd-opts .seg{margin:0}
+.fd-count{display:inline-flex;gap:8px;align-items:center;font-weight:600;font-size:13.5px}
+.fd-count input{width:80px;padding:6px 8px;border:1.5px solid var(--rule);border-radius:4px;background:var(--card)}
+.fd-sub{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 8px}
+.fd-results{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px;border:1px solid var(--rule)}
+.fd-results th{background:var(--sand);text-align:left;padding:6px 10px;font-family:var(--display);font-size:12.5px;letter-spacing:1px;text-transform:uppercase}
+.fd-results td{padding:7px 10px;border-top:1px solid var(--sand-2)}
+.fd-results td:first-child{font-family:var(--display);font-weight:600;width:38%}
+.fd-results tr.latest td{background:rgba(168,129,47,.08)}
+.fd-results tr.latest td:first-child{box-shadow:inset 3px 0 0 var(--gold)}
+#fdPanel .draw{grid-template-columns:minmax(280px,440px) 1fr}
+@media (max-width:820px){#fdPanel .draw{grid-template-columns:1fr}}
+#fdStage.fs .wheel-wrap{width:min(56vh,92vw)}
+#fdStage.fs .alt.spot,#fdStage.fs .alt.reel{width:min(92vw,1000px);max-width:none}
+#fdStage.fs .alt.flap{width:min(94vw,1300px)}
+#fdStage.fs .alt.deck{width:min(92vw,calc(var(--cols,4)*22vh + (var(--cols,4) - 1)*10px));max-width:none}
+#fdStage.fs .scard{min-height:16vh}
+@media (max-width:1099px){.seg.appmode{margin-left:0}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
@@ -498,6 +530,10 @@ main.side.fsside .stage{border:0}
       <div class="eyebrow">Official Draw</div>
       <h1><small id="eventName">Final Phase</small><span id="divTitle">Women</span></h1>
     </div>
+  </div>
+  <div class="seg appmode" role="group" aria-label="Mode" id="appModeSeg">
+    <button data-app="bracket" aria-pressed="true">Bracket draw</button>
+    <button data-app="free" aria-pressed="false">Free draw</button>
   </div>
   <div class="seg layout" role="group" aria-label="Layout" id="layoutSeg">
     <button data-layout="stack" aria-pressed="true">Stacked</button>
@@ -622,6 +658,80 @@ main.side.fsside .stage{border:0}
       <div class="autonum"><label>First match number <input id="autoStart" type="number" min="1" placeholder="49"></label><button class="btn" id="autoBtn">Auto-number</button><button class="btn" id="defaultNumBtn">Use default labels</button></div>
       <div class="grid numgrid" id="numEdit"></div>
     </details>
+  </section>
+</main>
+<main id="freeMain" hidden>
+  <section class="panel" id="fdSetup">
+    <h2>Free draw</h2>
+    <div class="fd-presets">
+      <span class="lbl">Preset</span>
+      <button class="btn" data-preset="tie">Tied seeding → seed numbers</button>
+      <button class="btn" data-preset="pool">Tied teams → pools</button>
+      <button class="btn" data-preset="ll">Lucky loser</button>
+      <button class="btn" data-preset="order">Draw order</button>
+    </div>
+    <div class="fd-grid">
+      <label class="fd-field fd-title">Draw title<input id="fdTitle" placeholder="e.g. Tie-break for Seeds 5–7"></label>
+      <label class="fd-field">Entries <small>one per line — teams, names or numbers</small>
+        <textarea id="fdItems" rows="8" placeholder="Team A&#10;Team B&#10;Team C"></textarea></label>
+      <label class="fd-field">Slots to fill <small>optional, one per line — leave empty to just pick entries. List a slot twice if it takes two entries.</small>
+        <textarea id="fdSlots" rows="8" placeholder="Seed 5&#10;Seed 6&#10;Seed 7"></textarea></label>
+    </div>
+    <div class="fd-opts">
+      <div class="seg" role="group" aria-label="What spins" id="fdDirSeg">
+        <button data-dir="item" aria-pressed="true">Draw entry → slot</button>
+        <button data-dir="slot" aria-pressed="false">Entry draws a slot</button>
+      </div>
+      <label class="fd-count" id="fdCountWrap">How many to pick <input type="number" id="fdCount" min="1" placeholder="all"></label>
+      <button class="btn solid" id="fdApply">Set up draw</button>
+      <span class="hint" id="fdSetupNote" style="margin:0"></span>
+    </div>
+  </section>
+
+  <section class="panel" id="fdPanel">
+    <div class="draw">
+      <div class="stage" id="fdStage">
+        <div class="stagebar"><span class="sb-live" id="fdLive"><i></i>LIVE DRAW</span><span id="fdInfo"></span><span class="sb-id" id="fdId"></span></div>
+        <div class="stage-top">
+          <label class="stylepick">Style
+            <select id="fdStyle" aria-label="Draw style">
+              <option value="wheel">🎡 Wheel</option>
+              <option value="cards">🃏 Card flip</option>
+              <option value="slot">🎰 Slot reel</option>
+              <option value="spotlight">💡 Spotlight</option>
+              <option value="flap">🛫 Split-flap</option>
+            </select>
+          </label>
+        </div>
+        <div class="target" id="fdTarget"></div>
+        <div class="wheel-wrap" id="fdWheelWrap">
+          <canvas id="fdWheel" width="1200" height="1200" aria-label="Draw wheel"></canvas>
+          <div class="pointer"></div>
+          <button class="spin" id="fdSpin">Spin</button>
+        </div>
+        <div class="alt" id="fdAlt" hidden></div>
+        <div class="gorow"><button class="btn solid go" id="fdGo" hidden>Draw</button></div>
+        <div class="power off" id="fdPower"><div class="pbar"><i id="fdPowerFill"></i></div><span id="fdPowerTxt">0.0s</span></div>
+        <div class="trustline"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.6-4.6 1.4 1.4-6 6Z"/></svg>
+          Cryptographic random draw · every draw time-stamped and logged</div>
+        <div class="result" id="fdResult" aria-live="polite"><span class="muted">Ready to draw</span></div>
+        <div class="row-btns">
+          <button class="btn solid" id="fdFs">Full screen</button>
+          <button class="btn" id="fdUndo">Undo last draw</button>
+          <button class="btn warn" id="fdClear">Clear results</button>
+          <button class="btn" id="fdCsv">Download (CSV)</button>
+          <button class="btn" id="fdCopy">Copy results</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="fd-sub" id="fdResHead">Results</h3>
+        <table class="fd-results"><thead><tr><th id="fdColSlot">Slot</th><th>Entry</th><th>Time</th></tr></thead><tbody id="fdResBody"></tbody></table>
+        <details class="audit" open>
+          <summary>Draw log <span id="fdLogCount" class="muted"></span></summary>
+          <div class="auditwrap"><table><thead><tr><th>#</th><th>Time</th><th>For</th><th>Options</th><th>Result</th><th>Status</th></tr></thead><tbody id="fdLogBody"></tbody></table></div>
+        </details>
+      </div>
+    </div>
   </section>
 </main>
 <div class="toast" id="toast"></div>
@@ -2111,6 +2221,291 @@ function setHelp(on){
 document.getElementById("helpBtn").onclick=()=>setHelp(document.body.classList.contains("nohints"));
 try{ setHelp(localStorage.getItem("r16-template-help")==="1"); }catch(e){ setHelp(false); }
 setDiv(div);
+/* =================== FREE DRAW (any list) =================== */
+const FD_KEY="r16-template-free-v1";
+const FD=(()=>{
+  let S=load(), busy=false, angle=0, drawer=null, power=0;
+  const $=id=>document.getElementById(id);
+  function blank(){ return {title:"",items:[],slots:[],dir:"item",count:null,results:[],log:[],style:"wheel",id:null}; }
+  function load(){ try{ const v=JSON.parse(localStorage.getItem(FD_KEY)); if(v&&v.items) return Object.assign(blank(),v); }catch(e){} return blank(); }
+  function save(){ try{ localStorage.setItem(FD_KEY,JSON.stringify(S)); }catch(e){} }
+  function newId(){ const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let x=""; for(let i=0;i<6;i++) x+=A[randInt(A.length)]; return "F-"+x; }
+  const hasSlots=()=>S.slots.length>0;
+  const usedItems=()=>new Set(S.results.map(r=>r.item));
+  const itemsLeft=()=>S.items.filter((it,i)=>!S.results.some(r=>r.ii===i)).map((_,k)=>_);
+  function itemIdxLeft(){ const u=new Set(S.results.map(r=>r.ii)); return S.items.map((_,i)=>i).filter(i=>!u.has(i)); }
+  function slotIdxLeft(){ const u=new Set(S.results.map(r=>r.si)); return S.slots.map((_,i)=>i).filter(i=>!u.has(i)); }
+  function limit(){ if(hasSlots()) return Math.min(S.slots.length,S.items.length); return Math.min(S.count||S.items.length,S.items.length); }
+  function done(){ return S.results.length>=limit(); }
+  function dir(){ return hasSlots()?S.dir:"item"; }
+  function curDrawer(){ const l=itemIdxLeft(); if(!l.includes(drawer)) drawer=l[0]??null; return drawer; }
+  // what is on the wheel now: list of {key,label,sub}
+  function options(){
+    if(done()) return [];
+    if(dir()==="slot") return slotIdxLeft().map(i=>({key:i,kind:"slot",label:S.slots[i],sub:""}));
+    return itemIdxLeft().map(i=>({key:i,kind:"item",label:S.items[i],sub:""}));
+  }
+  function forText(){
+    if(done()) return "Complete";
+    if(dir()==="slot"){ const d=curDrawer(); return d==null?"":`${S.items[d]} draws a slot`; }
+    if(hasSlots()) return `For ${S.slots[slotIdxLeft()[0]]}`;
+    return `Pick #${S.results.length+1}${S.count?" of "+limit():""}`;
+  }
+  /* ---------- setup ---------- */
+  const PRESETS={
+    tie:{title:"Tie-break: seed numbers",items:"Team A\nTeam B\nTeam C",slots:"Seed 5\nSeed 6\nSeed 7",dir:"item",count:""},
+    pool:{title:"Tie-break: pool allocation",items:"Team A\nTeam B\nTeam C\nTeam D",slots:"Pool A\nPool B\nPool C\nPool D",dir:"slot",count:""},
+    ll:{title:"Lucky loser draw",items:"Team A\nTeam B\nTeam C\nTeam D",slots:"",dir:"item",count:"1"},
+    order:{title:"Draw order",items:"Team A\nTeam B\nTeam C\nTeam D",slots:"",dir:"item",count:""}
+  };
+  document.querySelectorAll("#fdSetup [data-preset]").forEach(b=>b.onclick=()=>{
+    const p=PRESETS[b.dataset.preset]; $("fdTitle").value=p.title; $("fdItems").value=p.items; $("fdSlots").value=p.slots; $("fdCount").value=p.count; setDirUI(p.dir); syncSetupUI();
+    toast("Preset filled in — replace the example entries, then Set up draw");
+  });
+  let uiDir=S.dir;
+  function setDirUI(d){ uiDir=d; document.querySelectorAll("#fdDirSeg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.dir===d)); }
+  document.querySelectorAll("#fdDirSeg button").forEach(b=>b.onclick=()=>setDirUI(b.dataset.dir));
+  function syncSetupUI(){
+    const hasS=$("fdSlots").value.split("\n").some(l=>l.trim());
+    $("fdDirSeg").style.display=hasS?"":"none"; $("fdCountWrap").style.display=hasS?"none":"";
+    const ni=$("fdItems").value.split("\n").filter(l=>l.trim()).length, ns=$("fdSlots").value.split("\n").filter(l=>l.trim()).length;
+    $("fdSetupNote").textContent=hasS?`${ni} entries · ${ns} slots${ni!==ns?` · ${Math.min(ni,ns)} will be drawn`:""}`:`${ni} entries`;
+  }
+  ["fdItems","fdSlots"].forEach(id=>$(id).addEventListener("input",syncSetupUI));
+  $("fdApply").onclick=()=>{
+    const items=$("fdItems").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    const slots=$("fdSlots").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    if(items.length<1){ toast("Add at least one entry"); return; }
+    if(S.results.length&&!confirm("Set up a new draw? Current results will be cleared.")) return;
+    const c=parseInt($("fdCount").value,10);
+    S=Object.assign(blank(),{title:$("fdTitle").value.trim(),items,slots,dir:slots.length?uiDir:"item",count:!slots.length&&c>0?c:null,style:S.style,id:newId()});
+    S.log=[]; log({for:"Setup",result:`${items.length} entries${slots.length?`, ${slots.length} slots`:""}`,status:"manual",statusText:"Draw set up"});
+    drawer=null; save(); render(); toast("Draw ready");
+    $("fdPanel").scrollIntoView({behavior:reduceMotion()?"auto":"smooth",block:"start"});
+  };
+  function fillSetup(){ $("fdTitle").value=S.title; $("fdItems").value=S.items.join("\n"); $("fdSlots").value=S.slots.join("\n"); $("fdCount").value=S.count||""; setDirUI(S.dir); syncSetupUI(); }
+  /* ---------- log & results ---------- */
+  function log(e){ S.log.push(Object.assign({n:S.log.length+1,time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"})},e)); save(); }
+  function renderLog(){
+    $("fdLogCount").textContent=S.log.length?`(${S.log.length})`:"";
+    $("fdLogBody").innerHTML=S.log.length?S.log.slice().reverse().map(e=>`<tr class="st-${e.status}"><td>${e.n}</td><td>${esc(e.time)}</td><td>${esc(e.for||"")}</td><td class="opts">${esc(e.options||"")}</td><td><b>${esc(e.result||"")}</b></td><td>${esc(e.statusText||"")}</td></tr>`).join("")
+      :`<tr><td colspan="6" class="muted">Nothing yet.</td></tr>`;
+  }
+  function renderResults(){
+    $("fdColSlot").textContent=hasSlots()?"Slot":"#";
+    const rows=hasSlots()?S.slots.map((sl,si)=>{ const r=S.results.find(x=>x.si===si); return [sl,r?S.items[r.ii]:"",r?r.time:""]; })
+      :Array.from({length:limit()},(_,k)=>{ const r=S.results[k]; return [String(k+1),r?S.items[r.ii]:"",r?r.time:""]; });
+    const last=S.results[S.results.length-1];
+    $("fdResBody").innerHTML=rows.map(([a,b,t])=>`<tr class="${b&&last&&S.items[last.ii]===b?"latest":""}"><td>${esc(a)}</td><td>${b?`<b>${esc(b)}</b>`:`<span class="muted">—</span>`}</td><td class="muted">${esc(t)}</td></tr>`).join("");
+    if(!hasSlots()&&!S.count&&S.items.length){ $("fdResHead").textContent="Draw order"; } else $("fdResHead").textContent=S.count===1?"Selected":"Results";
+  }
+  function renderTarget(){
+    const el=$("fdTarget");
+    if(!S.items.length){ el.innerHTML=`<span class="muted">Set up the draw above</span>`; return; }
+    if(done()){ el.innerHTML=`<b>Draw complete</b>`; return; }
+    if(dir()==="slot"){ const l=itemIdxLeft(), d=curDrawer();
+      el.innerHTML=`Drawing: <select id="fdDrawer" ${busy?"disabled":""}>${l.map(i=>`<option value="${i}" ${i===d?"selected":""}>${esc(S.items[i])}</option>`).join("")}</select>`;
+      $("fdDrawer").onchange=e=>{ if(busy) return; drawer=+e.target.value; stage(); };
+    } else el.innerHTML=`Next: <b>${esc(forText().replace(/^For /,""))}</b>`;
+  }
+  function info(){
+    $("fdInfo").textContent=S.title||"Free draw"; $("fdId").textContent=S.id||"";
+    $("fdLive").classList.toggle("on",busy);
+  }
+  /* ---------- engine ---------- */
+  function begin(){
+    if(busy) return null; const opts=options(); if(!opts.length) return null;
+    if(dir()==="slot"&&curDrawer()==null) return null;
+    busy=true; upd(); $("fdResult").innerHTML=`<span class="muted">Drawing… (${esc(forText())})</span>`;
+    return {opts,forT:forText(),optsT:opts.map(o=>o.label).join(" · ")};
+  }
+  function commit(c,idx,note){
+    busy=false;
+    const o=c.opts[idx]; let ii,si;
+    if(o.kind==="slot"){ si=o.key; ii=curDrawer(); } else { ii=o.key; si=hasSlots()?slotIdxLeft()[0]:null; }
+    const time=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    S.results.push({ii,si,time});
+    const resT=si!=null?`${S.items[ii]} → ${S.slots[si]}`:`#${S.results.length} ${S.items[ii]}`;
+    log({for:c.forT,options:c.optsT,result:resT,status:"accepted",statusText:`Accepted (${STYLE_NAMES[S.style]||S.style}, held ${(power*2).toFixed(1)}s${note?", "+note:""})`});
+    $("fdResult").innerHTML=`<div class="resmeta">DRAW ${String(S.results.length).padStart(2,"0")} · ${time} · ${esc(S.id||"")}</div>${si!=null?`<b>${esc(S.slots[si])}</b> ← ${esc(S.items[ii])}`:`<b>${esc(S.items[ii])}</b>${limit()>1?` <span class="muted">(#${S.results.length})</span>`:""}`}`;
+    save(); render();
+    autoLast();
+  }
+  function autoLast(){
+    if(done()) { if(S.results.length) toast("Draw complete"); return; }
+    const opts=options(); if(opts.length!==1) return;
+    if(dir()==="slot"? itemIdxLeft().length!==1 : (hasSlots()? slotIdxLeft().length!==1 : limit()-S.results.length!==1||itemIdxLeft().length!==1)) return;
+    busy=true; upd();
+    setTimeout(()=>{ busy=false; const c={opts,forT:forText(),optsT:opts[0].label}; power=0; commit(c,0,"last option, automatic"); },1400);
+  }
+  /* ---------- styles ---------- */
+  function wheelDraw(){
+    const cv=$("fdWheel"), ctx=cv.getContext("2d"), W=cv.width, r=W/2-10, cx=W/2, cy=W/2, cs=getComputedStyle(document.documentElement);
+    const opts=options(); ctx.clearRect(0,0,W,W);
+    if(!opts.length){ ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=cs.getPropertyValue("--sand-2");ctx.fill(); ctx.fillStyle=cs.getPropertyValue("--ink-2"); ctx.font="600 56px 'IBM Plex Sans', sans-serif"; ctx.textAlign="center"; ctx.fillText(S.items.length?"All drawn":"Set up the draw",cx,cy+W*0.2); return; }
+    const seg=Math.PI*2/opts.length;
+    opts.forEach((o,i)=>{ const a0=angle+i*seg-Math.PI/2, col=colorFor(i);
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,a0,a0+seg); ctx.closePath(); ctx.fillStyle=col; ctx.fill(); ctx.lineWidth=6; ctx.strokeStyle="#FFFFFF"; ctx.stroke();
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(a0+seg/2); ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillStyle=inkFor(col);
+      const L=String(o.label), fs=L.length<=4?92:L.length<=10?60:L.length<=18?44:36; ctx.font=`700 ${fs}px 'IBM Plex Sans Condensed','Arial Narrow',sans-serif`;
+      ctx.fillText(L.length>26?L.slice(0,25)+"…":L,r-34,0,r-170); ctx.restore(); });
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.lineWidth=14; ctx.strokeStyle=cs.getPropertyValue("--ink"); ctx.stroke();
+    for(let k=0;k<32;k++){ const a=angle+k*Math.PI*2/32; ctx.beginPath(); ctx.arc(cx+Math.cos(a)*(r-1),cy+Math.sin(a)*(r-1),4.5,0,Math.PI*2); ctx.fillStyle=k%4===0?"#C9A55A":"#E2E8F0"; ctx.fill(); }
+  }
+  function runWheel(c,idx){
+    const n=c.opts.length, seg=Math.PI*2/n, TAU=Math.PI*2, jit=(Math.random()-.5)*seg*0.7;
+    const tm=((-(idx*seg+seg/2)+jit)%TAU+TAU)%TAU, cm=((angle%TAU)+TAU)%TAU;
+    const delta=(reduceMotion()?1:3+Math.round(power*7))*TAU+((tm-cm+TAU)%TAU), st=angle, dur=reduceMotion()?900:3000+power*4000, t0=performance.now();
+    (function step(t){ const k=Math.min(1,(t-t0)/dur); angle=st+delta*(1-Math.pow(1-k,4)); wheelDraw(); if(k<1) requestAnimationFrame(step); else commit(c,idx); })(t0);
+  }
+  let perm=[];
+  function renderCards(){
+    const opts=options(), el=$("fdAlt"); el.className="alt deck";
+    if(!opts.length){ el.innerHTML=`<div class="alt-empty">${S.items.length?"All drawn":"Set up the draw"}</div>`; return; }
+    perm=cryptoShuffle(opts.map(o=>o.key)); const n=perm.length; el.style.setProperty("--cols",n<=4?n:Math.ceil(n/2));
+    el.innerHTML=`<div class="deck-grid">${perm.map((_,i)=>`<button class="pcard" data-slot="${i}" ${busy?"disabled":""}><span class="inner"><span class="back"><span class="num">${i+1}</span></span><span class="face"></span></span></button>`).join("")}</div>`;
+  }
+  function shuffleCards(){
+    const el=$("fdAlt"), cards=[...el.querySelectorAll(".pcard")]; if(!cards.length||busy) return;
+    perm=cryptoShuffle(perm); log({for:"Shuffle",result:`${perm.length} cards reshuffled`,status:"manual",statusText:"Shuffled on screen"}); renderLog();
+    if(reduceMotion()) return;
+    const passes=1+Math.round(power*3); let p=0; busy=true; upd();
+    const gather=()=>{ const box=el.querySelector(".deck-grid").getBoundingClientRect(); cards.forEach(cd=>{ const r=cd.getBoundingClientRect(); cd.style.transition="transform .35s ease-in"; cd.style.transform=`translate(${box.left+box.width/2-r.left-r.width/2}px,${box.top+box.height/2-r.top-r.height/2}px) rotate(${(Math.random()-.5)*30}deg)`; }); setTimeout(spread,420); };
+    const spread=()=>{ cards.forEach((cd,i)=>{ cd.style.transition="transform .5s cubic-bezier(.2,.8,.2,1) "+(i*40)+"ms"; cd.style.transform=""; }); setTimeout(()=>{ if(++p<passes) gather(); else { busy=false; upd(); } },520+cards.length*40); };
+    gather();
+  }
+  $("fdAlt").addEventListener("click",e=>{
+    const cd=e.target.closest(".pcard"); if(!cd||S.style!=="cards") return;
+    const c=begin(); if(!c) return; const slot=+cd.dataset.slot, key=perm[slot], idx=c.opts.findIndex(o=>o.key===key);
+    const face=cd.querySelector(".face"), col=colorFor(idx); face.innerHTML=`<span class="big" style="font-size:clamp(16px,2.6vw,30px)">${esc(c.opts[idx].label)}</span>`; face.style.background=col; face.style.color=inkFor(col);
+    cd.classList.add("open"); $("fdAlt").querySelectorAll(".pcard").forEach(o=>{ if(o!==cd) o.classList.add("dim"); });
+    power=0; setTimeout(()=>commit(c,idx,`picked card ${slot+1} of ${perm.length}`),reduceMotion()?500:1700);
+  });
+  function renderReel(){
+    const opts=options(), el=$("fdAlt"); el.className="alt reel";
+    if(!opts.length){ el.innerHTML=`<div class="alt-empty">${S.items.length?"All drawn":"Set up the draw"}</div>`; return; }
+    let rows=""; for(let k=0;k<14;k++) opts.forEach((o,i)=>{ const col=colorFor(i); rows+=`<div class="rrow" style="--c:${col};--ci:${inkFor(col)}"><span class="chip">${esc(o.label)}</span></div>`; });
+    el.innerHTML=`<div class="reelwin"><div class="strip">${rows}</div><div class="reelmark"></div></div>`; reelPos(opts.length,false);
+  }
+  function reelPos(row,anim,dur){ const strip=$("fdAlt").querySelector(".strip"); if(!strip) return; const h=strip.firstElementChild.getBoundingClientRect().height; strip.style.transition=anim?`transform ${dur}ms cubic-bezier(.12,.72,.18,1)`:"none"; strip.style.transform=`translateY(${-(row-1)*h}px)`; }
+  function runReel(c,idx){ renderReel(); const n=c.opts.length, tg=n*11+idx, dur=reduceMotion()?700:2500+power*3500;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>reelPos(tg,true,dur)));
+    setTimeout(()=>{ const r=$("fdAlt").querySelectorAll(".rrow")[tg]; r&&r.classList.add("hit"); setTimeout(()=>commit(c,idx),reduceMotion()?300:1000); },dur+60); }
+  function renderSpot(){
+    const opts=options(), el=$("fdAlt"); el.className="alt spot";
+    if(!opts.length){ el.innerHTML=`<div class="alt-empty">${S.items.length?"All drawn":"Set up the draw"}</div>`; return; }
+    el.style.setProperty("--cols",opts.length<=4?2:opts.length<=9?3:4);
+    el.innerHTML=`<div class="spot-grid">${opts.map((o,i)=>{ const col=colorFor(i); return `<div class="scard" style="--c:${col};--ci:${inkFor(col)}"><span class="big" style="font-size:clamp(16px,2.4vw,30px)">${esc(o.label)}</span></div>`; }).join("")}</div>`;
+  }
+  function runSpot(c,idx){ renderSpot(); const cards=[...$("fdAlt").querySelectorAll(".scard")], n=cards.length;
+    const steps=reduceMotion()?3:14+Math.round(power*26)+randInt(6); let seq=[],prev=-1;
+    for(let s=0;s<steps-1;s++){ let r; do{ r=randInt(n); }while(n>1&&r===prev); seq.push(r); prev=r; }
+    if(n>1&&seq[seq.length-1]===idx) seq[seq.length-1]=(idx+1)%n; seq.push(idx); let s=0;
+    const hop=()=>{ cards.forEach(cd=>cd.classList.remove("lit")); cards[seq[s]].classList.add("lit");
+      if(s===seq.length-1){ cards[idx].classList.add("hit"); setTimeout(()=>commit(c,idx),reduceMotion()?300:1100); return; }
+      const p=s/seq.length; s++; setTimeout(hop,reduceMotion()?120:60+Math.pow(p,2.4)*520); }; hop(); }
+  const CELLS=18, CH=" ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-";
+  const norm=t=>String(t).toUpperCase().replace(/[^A-Z0-9 .\/\-]/g," ").slice(0,CELLS).padEnd(CELLS," ");
+  const rowH=(t,cls)=>`<div class="frow ${cls}">${[...norm(t)].map(ch=>`<span class="fc">${ch===" "?"&nbsp;":esc(ch)}</span>`).join("")}</div>`;
+  function renderFlap(){
+    const opts=options(), el=$("fdAlt"); el.className="alt flap";
+    el.innerHTML=`<div class="flapboard"><div class="flabel">DRAWING</div>${rowH(opts.length?forText().replace(/^For /,""):"COMPLETE","top")}<div class="flabel">RESULT</div>${rowH("","res")}</div>
+      ${opts.length?`<div class="flappool">In the draw: ${opts.map(o=>`<span>${esc(o.label)}</span>`).join("")}</div>`:""}`;
+  }
+  function runFlap(c,idx){ renderFlap(); const tgt=norm(c.opts[idx].label), cells=[...$("fdAlt").querySelectorAll(".frow.res .fc")]; let dn=0;
+    cells.forEach((cell,i)=>{ let f=reduceMotion()?1:5+Math.round(power*30)+randInt(6)+Math.floor(i/2);
+      const tick=()=>{ const ch=f>0?CH[randInt(CH.length)]:tgt[i]; cell.innerHTML=ch===" "?"&nbsp;":esc(ch); cell.classList.remove("flip"); void cell.offsetWidth; cell.classList.add("flip");
+        if(f-->0) setTimeout(tick,reduceMotion()?20:55); else if(++dn===cells.length){ $("fdAlt").querySelector(".flapboard").classList.add("lock"); setTimeout(()=>commit(c,idx),reduceMotion()?300:1300); } };
+      setTimeout(tick,reduceMotion()?0:i*45); }); }
+  const RUN={wheel:runWheel,slot:runReel,spotlight:runSpot,flap:runFlap};
+  const REND={cards:renderCards,slot:renderReel,spotlight:renderSpot,flap:renderFlap};
+  const GO={cards:"Shuffle",slot:"Pull",spotlight:"Start",flap:"Reveal"};
+  function stage(){
+    const st=S.style; $("fdWheelWrap").hidden=st!=="wheel"; $("fdAlt").hidden=st==="wheel";
+    $("fdGo").hidden=st==="wheel"; $("fdGo").textContent=GO[st]||"Draw";
+    if(st==="wheel") wheelDraw(); else if(!busy) REND[st]();
+    renderTarget(); upd();
+  }
+  function go(p){
+    power=Math.max(0,Math.min(1,p||0));
+    if(S.style==="cards"){ shuffleCards(); return; }
+    const c=begin(); if(!c) return;
+    RUN[S.style](c,randInt(c.opts.length));
+  }
+  function upd(){
+    const off=busy||!options().length;
+    $("fdSpin").disabled=off; $("fdGo").disabled=off;
+    document.querySelectorAll("#fdAlt .pcard").forEach(b=>b.disabled=off);
+    const d=$("fdDrawer"); if(d) d.disabled=busy;
+    ["fdUndo","fdClear","fdApply"].forEach(id=>$(id).disabled=busy);
+    info();
+  }
+  /* hold-to-draw */
+  let h0=0,hraf=0,htm=0;
+  function hs(){ if(h0||busy) return; const b=S.style==="wheel"?$("fdSpin"):$("fdGo"); if(b.disabled) return; h0=performance.now(); $("fdPower").classList.remove("off");
+    const t=()=>{ if(!h0) return; const p=Math.min(1,(performance.now()-h0)/2000); $("fdPowerFill").style.width=(p*100)+"%"; $("fdPowerTxt").textContent=(p*2).toFixed(1)+"s"; hraf=requestAnimationFrame(t); }; t(); htm=setTimeout(he,2000); }
+  function he(){ if(!h0) return; const p=Math.min(1,(performance.now()-h0)/2000); h0=0; clearTimeout(htm); cancelAnimationFrame(hraf); setTimeout(()=>{ if(!h0) $("fdPower").classList.add("off"); },600); go(p); }
+  ["fdSpin","fdGo"].forEach(id=>{ const b=$(id);
+    b.addEventListener("pointerdown",e=>{ if(e.button!==0) return; e.preventDefault(); try{ b.setPointerCapture(e.pointerId); }catch(_){} hs(); });
+    ["pointerup","pointercancel","lostpointercapture"].forEach(ev=>b.addEventListener(ev,he));
+    b.addEventListener("keydown",e=>{ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); e.stopPropagation(); if(!e.repeat) hs(); } });
+    b.addEventListener("keyup",e=>{ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); e.stopPropagation(); he(); } });
+    b.addEventListener("contextmenu",e=>e.preventDefault()); });
+  $("fdStyle").addEventListener("change",e=>{ if(busy){ e.target.value=S.style; return; } S.style=e.target.value; save(); stage(); });
+  /* actions */
+  $("fdUndo").onclick=()=>{ if(busy) return; const r=S.results.pop(); if(!r){ toast("Nothing drawn yet"); return; }
+    log({for:"Undo",result:`${S.items[r.ii]}${r.si!=null?" ← "+S.slots[r.si]:""} removed`,status:"undo",statusText:"Undo"}); save(); render(); $("fdResult").innerHTML=`<span class="muted">Last draw undone</span>`; };
+  $("fdClear").onclick=()=>{ if(busy||!S.results.length) return; if(!confirm("Clear all results of this draw?")) return; S.results=[]; log({for:"Clear",result:"All results cleared",status:"undo",statusText:"Results cleared"}); save(); render(); };
+  function csv(){
+    const q=v=>{ v=String(v??""); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }, rows=[];
+    rows.push([S.title||"Free draw"]); rows.push(["Draw ID",S.id||""]); rows.push(["Exported",new Date().toLocaleString()]); rows.push([]);
+    rows.push(hasSlots()?["Slot","Entry","Time"]:["#","Entry","Time"]);
+    if(hasSlots()) S.slots.forEach((sl,si)=>{ const r=S.results.find(x=>x.si===si); rows.push([sl,r?S.items[r.ii]:"",r?r.time:""]); });
+    else S.results.forEach((r,k)=>rows.push([k+1,S.items[r.ii],r.time]));
+    rows.push([]); rows.push(["Draw log — random source: browser crypto.getRandomValues"]); rows.push(["#","Time","For","Options","Result","Status"]);
+    S.log.forEach(e=>rows.push([e.n,e.time,e.for||"",e.options||"",e.result||"",e.statusText||""]));
+    return "﻿"+rows.map(r=>r.map(q).join(",")).join("\r\n");
+  }
+  $("fdCsv").onclick=async()=>{
+    const data=csv(), filename=`free-draw-${(S.title||"draw").replace(/[^a-z0-9]+/gi,"-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.csv`;
+    let dl=null; try{ if(window.claude&&window.claude.use) dl=await window.claude.use("downloads"); }catch(e){}
+    if(dl){ try{ await dl.save({filename,data}); toast("Saved"); }catch(e){ if(e&&e.code!=="declined") toast("Download isn't available here"); } return; }
+    const url=URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"})), a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+  };
+  $("fdCopy").onclick=async()=>{
+    const L=[(S.title||"Free draw")+(S.id?` (${S.id})`:"")];
+    if(hasSlots()) S.slots.forEach((sl,si)=>{ const r=S.results.find(x=>x.si===si); L.push(`  ${sl}: ${r?S.items[r.ii]:"—"}`); });
+    else S.results.forEach((r,k)=>L.push(`  ${k+1}. ${S.items[r.ii]}`));
+    try{ await navigator.clipboard.writeText(L.join("\n")); toast("Copied"); }catch(e){ toast("Copy isn't supported here"); }
+  };
+  /* fullscreen */
+  function fsOn(){ return $("fdStage").classList.contains("fs"); }
+  function fsEnter(){ $("fdStage").classList.add("fs"); document.body.classList.add("noscroll"); $("fdFs").textContent="Exit full screen"; try{ const r=document.documentElement.requestFullscreen?.(); r&&r.catch&&r.catch(()=>{}); }catch(e){} requestAnimationFrame(stage); }
+  function fsExit(){ if(!fsOn()) return; $("fdStage").classList.remove("fs"); document.body.classList.remove("noscroll"); $("fdFs").textContent="Full screen"; try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){} }
+  $("fdFs").onclick=()=>fsOn()?fsExit():fsEnter();
+  document.addEventListener("fullscreenchange",()=>{ if(!document.fullscreenElement) fsExit(); });
+  document.addEventListener("keydown",e=>{ if(!fsOn()) return; if(e.key==="Escape") fsExit();
+    if((e.key===" "||e.key==="Enter")&&!e.target.closest("select,button,input,textarea")){ e.preventDefault(); if(e.repeat) return; if(S.style==="cards") go(0); else hs(); } });
+  document.addEventListener("keyup",e=>{ if(fsOn()&&(e.key===" "||e.key==="Enter")&&h0){ e.preventDefault(); he(); } });
+  function render(){ renderLog(); renderResults(); stage(); info(); }
+  function init(){ $("fdStyle").value=S.style; fillSetup(); render(); }
+  return {init,render,exitFs:fsExit};
+})();
+/* top-level mode switch */
+function setAppMode(m){
+  const free=m==="free";
+  document.getElementById("main").hidden=free; document.getElementById("trustBar").hidden=free; document.getElementById("freeMain").hidden=!free;
+  document.querySelectorAll("#appModeSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.app===m));
+  document.querySelector("header .tabs").style.visibility=free?"hidden":"";
+  document.getElementById("layoutSeg").style.visibility=free?"hidden":"";
+  document.getElementById("divTitle").textContent=free?"Free Draw":(div==="men"?"Men":"Women");
+  if(free){ exitFs(); FD.init(); } else { FD.exitFs(); setDiv(div); }
+  try{ localStorage.setItem("r16-template-app",m); }catch(e){}
+}
+document.querySelectorAll("#appModeSeg button").forEach(b=>b.onclick=()=>{ if(!spinning) setAppMode(b.dataset.app); });
+
+try{ if(localStorage.getItem("r16-template-app")==="free") setAppMode("free"); }catch(e){}
+
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(drawWheel);
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",drawWheel);
 })();
